@@ -1,8 +1,11 @@
+// This is the div within /create where the user can shorten a URL.
+
 Shortly.createLinkView = Backbone.View.extend({
   className: 'creator',
 
   template: Templates['create'],
 
+  // button click calls shortenURL method
   events: {
     'submit': 'shortenUrl'
   },

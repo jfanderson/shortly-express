@@ -13,7 +13,7 @@ var Link = require('../app/models/link');
 // Remove the 'x' from beforeEach block when working on
 // authentication tests.
 /************************************************************/
-var xbeforeEach = function(){};
+var xbeforeEach = function() {};
 /************************************************************/
 
 
@@ -59,29 +59,31 @@ describe('', function() {
       });
   });
 
-  describe('Link creation:', function(){
+  describe('Link creation:', function() {
 
-    var requestWithSession = request.defaults({jar: true});
+    var requestWithSession = request.defaults({
+      jar: true
+    });
 
-var xbeforeEach = function(){};
-      // create a user that we can then log-in with
-      new User({
+    var beforeEach = function() {};
+
+    // create a user that we can then log-in with
+    new User({
+      'username': 'Phillip',
+      'password': 'Phillip'
+    }).save().then(function() {
+      var options = {
+        'method': 'POST',
+        'followAllRedirects': true,
+        'uri': 'http://127.0.0.1:4568/login',
+        'json': {
           'username': 'Phillip',
           'password': 'Phillip'
-      }).save().then(function(){
-        var options = {
-          'method': 'POST',
-          'followAllRedirects': true,
-          'uri': 'http://127.0.0.1:4568/login',
-          'json': {
-            'username': 'Phillip',
-            'password': 'Phillip'
-          }
-        };
-        // login via form and save session info
-        requestWithSession(options, function(error, res, body) {
-          done();
-        });
+        }
+      };
+      // login via form and save session info
+      requestWithSession(options, function(error, res, body) {
+        done();
       });
     });
 
@@ -101,7 +103,7 @@ var xbeforeEach = function(){};
       });
     });
 
-    describe('Shortening links:', function(){
+    describe('Shortening links:', function() {
 
       var options = {
         'method': 'POST',
@@ -134,7 +136,7 @@ var xbeforeEach = function(){};
         });
       });
 
-      it('Fetches the link url title', function (done) {
+      it('Fetches the link url title', function(done) {
         requestWithSession(options, function(error, res, body) {
           db.knex('urls')
             .where('title', '=', 'Funny pictures of animals, funny dog pictures')
@@ -150,18 +152,18 @@ var xbeforeEach = function(){};
 
     }); // 'Shortening links'
 
-    describe('With previously saved urls:', function(){
+    describe('With previously saved urls:', function() {
 
       var link;
 
-      beforeEach(function(done){
+      beforeEach(function(done) {
         // save a link to the database
         link = new Link({
           url: 'http://roflzoo.com/',
           title: 'Funny pictures of animals, funny dog pictures',
           base_url: 'http://127.0.0.1:4568'
         });
-        link.save().then(function(){
+        link.save().then(function() {
           done();
         });
       });
@@ -213,7 +215,7 @@ var xbeforeEach = function(){};
 
   }); // 'Link creation'
 
-  xdescribe('Privileged Access:', function(){
+  xdescribe('Privileged Access:', function() {
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
@@ -238,7 +240,7 @@ var xbeforeEach = function(){};
 
   }); // 'Priviledged Access'
 
-  xdescribe('Account Creation:', function(){
+  xdescribe('Account Creation:', function() {
 
     it('Signup creates a user record', function(done) {
       var options = {
@@ -286,15 +288,17 @@ var xbeforeEach = function(){};
 
   }); // 'Account Creation'
 
-  xdescribe('Account Login:', function(){
+  xdescribe('Account Login:', function() {
 
-    var requestWithSession = request.defaults({jar: true});
+    var requestWithSession = request.defaults({
+      jar: true
+    });
 
-    beforeEach(function(done){
+    beforeEach(function(done) {
       new User({
-          'username': 'Phillip',
-          'password': 'Phillip'
-      }).save().then(function(){
+        'username': 'Phillip',
+        'password': 'Phillip'
+      }).save().then(function() {
         done()
       });
     })
@@ -332,5 +336,4 @@ var xbeforeEach = function(){};
     });
 
   }); // 'Account Login'
-
 });
