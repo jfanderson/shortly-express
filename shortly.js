@@ -21,32 +21,34 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(session({secret: 'i just want this to work'}));
+app.use(session({secret: 'i just want this to work', saveUninitialized: false, resave: false}));
 
-function checkUser(req, res, next) {
-  if (req.session.user) {             // TODO: FIX THIS LINE TO CHECK FOR SESSION
-    next();
-  } else {
+var checkUser = function (req, res) {
+  if (!req.session.user) {
     req.session.err = "Access Denied!";
     res.redirect('/login');
   }
 };
 
-app.get('/', checkUser, function(req, res) {
+app.get('/', function(req, res) {
+  checkUser(req, res);
   res.render('index');
 });
 
-app.get('/create', checkUser, function(req, res) {
+app.get('/create', function(req, res) {
+  checkUser(req, res);
   res.render('index');
 });
 
-app.get('/links', checkUser, function(req, res) {
+app.get('/links', function(req, res) {
+  checkUser(req, res);
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', checkUser, function(req, res) {
+app.post('/links', function(req, res) {
+  checkUser(req, res);
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -94,7 +96,10 @@ app.post('/login', function(req, res) {
       console.log("Username does not exist.");
       res.send(404, "Username does not exist.");
     } else if(util.verifyUser(password, found)) {
-      res.render('index');
+      req.session.regenerate(function() {
+        req.session.user = username;
+        res.redirect('/');
+      });
     } else {
       console.log(password, found.get('password'));
       res.send(404, "Log In Failed.");
@@ -123,8 +128,10 @@ app.post('/signup', function(req, res) {
         password: password
       })
       .then(function() {
-        console.log("User created and redirected back to homepage.")
-        res.render('index');
+        req.session.regenerate(function() {
+          req.session.user = username;
+          res.redirect('/');
+        });
       })
     }
   })
