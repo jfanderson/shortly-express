@@ -83,7 +83,9 @@ app.post('/links', function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 app.get('/login', function(req, res) {
-  res.render('login');
+  req.session.destroy(function() {
+      res.render('login');
+  });
 });
 
 app.post('/login', function(req, res) {
