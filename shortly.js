@@ -75,6 +75,26 @@ app.get('/login', function(req, res) {
   res.render('login');
 });
 
+app.post('/login', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  // var tryagain = "Username already exists. Please choose again.";
+
+  new User({username: username}).fetch().then(function(found) {
+    if(!found) {
+      console.log("Username does not exist.");
+      res.send(404, "Username does not exist.");
+    } else if(util.verifyUser(password, found)) {
+      res.render('index');
+    } else {
+      console.log(password, found.get('password'));
+      res.send(404, "Log In Failed.");
+    }
+  })
+
+});
+
+
 app.get('/signup', function(req, res) {
   res.render('signup');
 });
