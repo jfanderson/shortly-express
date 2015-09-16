@@ -23,32 +23,30 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 app.use(session({secret: 'i just want this to work', saveUninitialized: false, resave: false}));
 
-var checkUser = function (req, res) {
-  if (!req.session.user) {
+var checkUser = function (req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
     req.session.err = "Access Denied!";
     res.redirect('/login');
   }
 };
 
-app.get('/', function(req, res) {
-  checkUser(req, res);
+app.get('/', checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/create', function(req, res) {
-  checkUser(req, res);
+app.get('/create', checkUser, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', function(req, res) {
-  checkUser(req, res);
+app.get('/links', checkUser, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', function(req, res) {
-  checkUser(req, res);
+app.post('/links', checkUser, function(req, res) {
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -96,17 +94,16 @@ app.post('/login', function(req, res) {
   new User({username: username}).fetch().then(function(found) {
     if(!found) {
       console.log("Username does not exist.");
-      res.send(404, "Username does not exist.");
+      res.send(401, "Username does not exist.");
     } else if(util.verifyUser(password, found)) {
       req.session.regenerate(function() {
         req.session.user = username;
         res.redirect('/');
       });
     } else {
-      console.log(password, found.get('password'));
-      res.send(404, "Log In Failed.");
+      res.send(401, "Log In Failed.");
     }
-  })
+  });
 
 });
 
@@ -134,9 +131,9 @@ app.post('/signup', function(req, res) {
           req.session.user = username;
           res.redirect('/');
         });
-      })
+      });
     }
-  })
+  });
 
 });
 
